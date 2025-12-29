@@ -39,12 +39,32 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/public/**", "/api/analytics/track").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/mentor/**").hasAnyRole("MENTOR", "ADMIN")
-                .requestMatchers("/api/user/**").hasAnyRole("USER", "MENTOR", "ADMIN")
-                .anyRequest().authenticated()
-            )
+
+    // ✅ ALLOW REACT FRONTEND
+    .requestMatchers(
+        "/",
+        "/index.html",
+        "/favicon.ico",
+        "/assets/**",
+        "/static/**"
+    ).permitAll()
+
+    // ✅ PUBLIC APIs
+    .requestMatchers(
+        "/api/auth/**",
+        "/api/public/**",
+        "/api/analytics/track"
+    ).permitAll()
+
+    // 🔐 PROTECTED APIs
+    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+    .requestMatchers("/api/mentor/**").hasAnyRole("MENTOR", "ADMIN")
+    .requestMatchers("/api/user/**").hasAnyRole("USER", "MENTOR", "ADMIN")
+
+    // 🔒 EVERYTHING ELSE
+    .anyRequest().authenticated()
+)
+          
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
